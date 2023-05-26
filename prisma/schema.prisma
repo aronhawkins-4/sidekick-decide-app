@@ -1,0 +1,28 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Vote {
+  id      String    @id @default(cuid())
+  restaurantId  String
+  userId  String
+  vote    Boolean
+  restaurant  Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+}
+
+model Restaurant {
+  id            String    @id @default(cuid())
+  name          String
+  createdById   String
+  createdByName String
+  votes         Vote[]
+}
