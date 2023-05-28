@@ -1,21 +1,22 @@
 'use client';
 
-import { UserButton, currentUser } from '@clerk/nextjs';
-import { Restaurant } from '@prisma/client';
 import axios from 'axios';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-import { pusherClient } from '../libs/pusher';
+import { Vote } from '@prisma/client';
+import { useState } from 'react';
 
 interface VoteFormProps {
 	userId: string;
 	restaurantId: string;
+	onVote: (userVoteId: string) => void;
+	onClick: () => void;
+	setIsDisabled: (disabled: boolean) => void;
 }
-export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId }) => {
+export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId, onVote, onClick, setIsDisabled }) => {
 	const router = useRouter();
+
 	const {
 		handleSubmit,
 		setValue,
@@ -30,25 +31,32 @@ export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId }) => {
 
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		setValue('vote', false, { shouldValidate: true });
+		setIsDisabled(true);
 		axios
 			.post('/api/vote/', data)
-			.then(() => {
+			.then((response) => {
 				toast.success(`You voted ${data.vote === true ? 'Yes' : 'No'}`);
-				// router.refresh();
+				onVote(response.data.id as string);
+				router.refresh();
 			})
-			.catch((error) => toast.error(error));
+			.catch((error) => toast.error(error))
+			.finally(() => setIsDisabled(false));
 	};
 
 	return (
 		<div className='mt-4 max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700'>
 			<div className='p-5'>
 				<form
-					onSubmit={handleSubmit(onSubmit)}
+					onSubmit={() => {
+						handleSubmit(onSubmit)();
+						onClick();
+					}}
 					className='flex flex-col items-center gap-2 lg:gap-4 w-full'
 				>
 					<div className='flex gap-4 items-center justify-between'>
 						<button
 							type='submit'
+							name='true'
 							onClick={() => {
 								setValue('vote', true);
 							}}
@@ -58,6 +66,7 @@ export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId }) => {
 						</button>
 						<button
 							type='submit'
+							name='false'
 							onClick={() => {
 								setValue('vote', false);
 							}}

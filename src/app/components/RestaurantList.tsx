@@ -13,6 +13,8 @@ interface RestaurantListProps {
 }
 export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, userId }) => {
 	const [restaurantList, setRestaurantList] = useState(restaurants);
+	const [activeRestaurant, setActiveRestaurant] = useState(restaurants[0]);
+	const [activeIndex, setActiveIndex] = useState(0);
 
 	useEffect(() => {
 		pusherClient.subscribe('restaurants-list');
@@ -24,7 +26,6 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, use
 
 		const listRemoveHandler = (restaurant: Restaurant & { votes: Vote[] }) => {
 			setRestaurantList((current) => current.filter((item) => item.id !== restaurant.id));
-			console.log(restaurantList);
 			return restaurant;
 		};
 
@@ -42,6 +43,47 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, use
 		return <div>Invalid UserID</div>;
 	}
 	return (
+		// <div className='flex flex-col items-center justify-center'>
+		// 	<div className='text-lg font-normal'>
+		// 		<RestaurantCard
+		// 			restaurantId={activeRestaurant.id}
+		// 			name={activeRestaurant.name}
+		// 			createdByName={activeRestaurant.createdByName}
+		// 			initialVotes={activeRestaurant.votes}
+		// 			userId={userId}
+		// 		/>
+		// 	</div>
+		// 	<div className='flex gap-2 items-center justify-center'>
+		// 		<button
+		// 			onClick={() =>
+		// 				setActiveRestaurant(() => {
+		// 					if (activeIndex > 0) {
+		// 						setActiveIndex((current) => current - 1);
+		// 						return restaurantList[activeIndex];
+		// 					}
+		// 					setActiveIndex(restaurantList.length - 1);
+		// 					return restaurantList[activeIndex];
+		// 				})
+		// 			}
+		// 		>
+		// 			Previous
+		// 		</button>
+		// 		<button
+		// 			onClick={() =>
+		// 				setActiveRestaurant(() => {
+		// 					if (activeIndex < restaurantList.length - 1) {
+		// 						setActiveIndex((current) => current + 1);
+		// 						return restaurantList[activeIndex];
+		// 					}
+		// 					setActiveIndex(0);
+		// 					return restaurantList[activeIndex];
+		// 				})
+		// 			}
+		// 		>
+		// 			Next
+		// 		</button>
+		// 	</div>
+		// </div>
 		<ul className='flex items-center justify-center gap-4'>
 			{restaurantList.map((restaurant) => (
 				<li
@@ -52,7 +94,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, use
 						restaurantId={restaurant.id}
 						name={restaurant.name}
 						createdByName={restaurant.createdByName}
-						votes={restaurant.votes}
+						initialVotes={restaurant.votes}
 						userId={userId}
 					/>
 				</li>

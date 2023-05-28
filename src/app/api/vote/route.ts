@@ -15,7 +15,11 @@ export async function POST(request: Request) {
 			data: {
 				userId,
 				vote,
-				restaurantId,
+				restaurant: {
+					connect: {
+						id: restaurantId,
+					},
+				},
 			},
 		});
 

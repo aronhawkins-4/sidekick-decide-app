@@ -1,11 +1,13 @@
 import { currentUser } from '@clerk/nextjs';
 import { RestaurantForm } from './components/RestaurantForm';
-import getRestaurants from './actions/getRestaurants';
 import { RestaurantList } from './components/RestaurantList';
+import getRestaurants from './actions/getRestaurants';
+import getVotes from './actions/getVotes';
 
 export default async function Home() {
 	const user = await currentUser();
 	const restaurants = await getRestaurants();
+	const votes = await getVotes();
 
 	if (!user) {
 		return <div>Please Login</div>;
