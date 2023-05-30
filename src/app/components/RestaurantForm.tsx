@@ -55,15 +55,15 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({ userId, userName
 	return (
 		<div className=' bg-white border max-w-xl w-full border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700'>
 			<div className='p-5 w-full'>
-				<h2 className='text-xl font-semibold mb-4'>Add a restaurant</h2>
+				<h2 className='text-xl font-semibold mb-2'>Add a restaurant</h2>
 				<form
 					onSubmit={handleSubmit(onSubmit)}
 					className='flex items-start gap-2 lg:gap-4 w-full flex-col'
 				>
-					<div className='flex flex-col gap-2 mb-2 w-full'>
+					<div className='flex flex-col gap-2 w-full'>
 						<label
 							htmlFor='name'
-							className='block mb-2 text-sm font-medium text-gray-900 dark:text-white'
+							className='block text-sm font-medium text-gray-900 dark:text-gray-400'
 						>
 							Restaurant name
 						</label>

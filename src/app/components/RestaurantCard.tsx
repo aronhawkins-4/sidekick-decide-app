@@ -10,6 +10,8 @@ import { BiTrash } from 'react-icons/bi';
 import { pusherClient } from '@/app/libs/pusher';
 import { useEffect, useMemo } from 'react';
 import { ChangeVoteButton } from './ChangeVoteButton';
+import useUserCount from '../hooks/useUserCount';
+import { AgreeModal } from './AgreeModal';
 
 interface RestaurantCardProps {
 	name: string;
@@ -29,6 +31,10 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 	const [hasUserVoted, setHasUserVoted] = useState((initialVotes || []).filter((vote) => vote?.userId === userId).length > 0);
 	const [voteId, setVoteId] = useState('');
 	const [isDisabled, setIsDisabled] = useState(false);
+	// const [agreedRestaurantName, setAgreedRestaurantName] = useState('');
+	// const [isAgreedModalOpen, setIsAgreedModalOpen] = useState(false);
+
+	// const { activeMembers } = useUserCount();
 
 	useEffect(() => {
 		pusherClient.subscribe(restaurantId);
@@ -88,6 +94,10 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 				});
 			}
 
+			// if (yesVotes === activeMembers) {
+			// 	setAgreedRestaurantName(name);
+			// 	setIsAgreedModalOpen(true);
+			// }
 			return vote;
 		};
 
@@ -123,48 +133,59 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 	}, []);
 
 	return (
-		<div
-			className={`w-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${deletingId === restaurantId && 'opacity-80'} ${
-				isDisabled && 'opacity-80 pointer-events-none'
-			}`}
-		>
-			<div className='flex flex-col items-center p-10 relative'>
-				<h5 className='mb-1 text-xl font-medium text-gray-900 dark:text-white'>{name}</h5>
-				<div className='flex flex-col mt-2 space-x-3'></div>
-				{!hasUserVoted && (
-					<VoteForm
-						userId={userId}
-						restaurantId={restaurantId}
-						onVote={onVote}
-						onClick={() => {
-							setHasUserVoted(true);
-						}}
-						setIsDisabled={setIsDisabled}
-					/>
-				)}
-				{hasUserVoted && (
-					<ChangeVoteButton
-						onClick={() => {
-							setHasUserVoted(false);
-							setVoteId('');
-						}}
-						voteId={voteId}
-					/>
-				)}
+		<>
+			{/* {isAgreedModalOpen && (
+				<AgreeModal
+					restaurantName={agreedRestaurantName}
+					isOpen={isAgreedModalOpen}
+					setIsOpen={setIsAgreedModalOpen}
+				/>
+			)} */}
 
-				<p className='mt-4 text-sm font-light text-gray-400'>Created by: {createdByName}</p>
-				<div className='flex gap-4'>
-					<p className='mt-2 text-sm font-light text-gray-400'>Votes for: {yesVotes}</p>
-					<p className='mt-2 text-sm font-light text-gray-400'>Votes against: {noVotes}</p>
+			<div
+				className={`w-full lg:min-w-[20rem] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${deletingId === restaurantId && 'opacity-80'} ${
+					isDisabled && 'opacity-80 pointer-events-none'
+				}`}
+			>
+				<div className='flex flex-col items-center p-10 relative gap-4'>
+					<h5 className='text-xl font-medium text-gray-900 dark:text-white'>{name}</h5>
+					{!hasUserVoted && (
+						<VoteForm
+							userId={userId}
+							restaurantId={restaurantId}
+							onVote={onVote}
+							onClick={() => {
+								setHasUserVoted(true);
+							}}
+							setIsDisabled={setIsDisabled}
+						/>
+					)}
+					{hasUserVoted && (
+						<ChangeVoteButton
+							onClick={() => {
+								setHasUserVoted(false);
+								setVoteId('');
+							}}
+							voteId={voteId}
+							setIsDisabled={setIsDisabled}
+						/>
+					)}
+					<div className='flex flex-col gap-1 items-center justify-center'>
+						<p className='text-sm font-light text-gray-400'>Created by: {createdByName}</p>
+						<div className='flex gap-2 sm:gap-4 flex-col sm:flex-row items-left justify-center w-full'>
+							<p className='text-sm font-light text-gray-400'>Votes for: {yesVotes}</p>
+							<p className='text-sm font-light text-gray-400'>Votes against: {noVotes}</p>
+						</div>
+					</div>
+
+					<button
+						onClick={() => onDelete(restaurantId)}
+						className='p-2 rounded-full bg-red-500 hover:bg-red-800 transition absolute bottom-4 right-4'
+					>
+						<BiTrash size={16} />
+					</button>
 				</div>
-
-				<button
-					onClick={() => onDelete(restaurantId)}
-					className='p-2 rounded-full bg-red-500 hover:bg-red-800 transition absolute bottom-4 right-4'
-				>
-					<BiTrash size={16} />
-				</button>
 			</div>
-		</div>
+		</>
 	);
 };

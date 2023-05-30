@@ -2,26 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import useUserCount from '../hooks/useUserCount';
+import { FaHandshake } from 'react-icons/fa';
 
 interface AgreeModalProps {
-	restaurantName: string;
+	restaurantName?: string;
+	isOpen?: boolean;
+	setIsOpen: (open: boolean) => void;
 }
 
-export const AgreeModal: React.FC<AgreeModalProps> = ({ restaurantName }) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const { activeMembers } = useUserCount();
-
-	useEffect(() => {
-		if (activeMembers === 3) {
-			setIsOpen(true);
-		}
-	}, [activeMembers]);
-
+export const AgreeModal: React.FC<AgreeModalProps> = ({ restaurantName, isOpen, setIsOpen }) => {
 	return (
 		<>
 			<div className={`w-screen h-screen fixed bg-gray-800/80 top-0 left-0 z-10 ${!isOpen && 'hidden'} ${isOpen && 'flex'}`}></div>
 			<div
-				id='popup-modal'
 				tabIndex={-1}
 				className={`fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0  max-h-full w-screen h-screen justify-center items-center z-11 ${!isOpen && 'hidden'} ${
 					isOpen && 'flex'
@@ -50,39 +43,29 @@ export const AgreeModal: React.FC<AgreeModalProps> = ({ restaurantName }) => {
 							</svg>
 							<span className='sr-only'>Close modal</span>
 						</button>
-						<div className='p-6 text-center'>
-							<svg
-								aria-hidden='true'
-								className='mx-auto mb-4 text-gray-400 w-14 h-14 dark:text-gray-200'
-								fill='none'
-								stroke='currentColor'
-								viewBox='0 0 24 24'
-								xmlns='http://www.w3.org/2000/svg'
-							>
-								<path
-									strokeLinecap='round'
-									strokeLinejoin='round'
-									strokeWidth='2'
-									d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-								></path>
-							</svg>
-							<h3 className='mb-5 text-lg font-normal text-gray-500 dark:text-gray-400'>All active members agreed upon {restaurantName}</h3>
-							<button
-								data-modal-hide='popup-modal'
-								type='button'
-								className='text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2'
-								onClick={() => setIsOpen(false)}
-							>
-								Sounds Great!
-							</button>
-							<button
-								data-modal-hide='popup-modal'
-								type='button'
-								className='text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600'
-								onClick={() => setIsOpen(false)}
-							>
-								No, cancel
-							</button>
+						<div className='p-6 text-center flex flex-col gap-4'>
+							<div className='flex justify-center w-full'>
+								<FaHandshake size={42} />
+							</div>
+							<h3 className='text-lg font-normal text-gray-500 dark:text-gray-400'>All active members agreed on {restaurantName}</h3>
+							<div className='flex gap-2 justify-center items-center w-full'>
+								<button
+									data-modal-hide='popup-modal'
+									type='button'
+									className='relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800'
+									onClick={() => setIsOpen(false)}
+								>
+									<span className='relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-700 rounded-md group-hover:bg-opacity-0'>Sounds Great!</span>
+								</button>
+								<button
+									data-modal-hide='popup-modal'
+									type='button'
+									className='relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-500 to-pink-500 group-hover:from-purple-500 group-hover:to-pink-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800'
+									onClick={() => setIsOpen(false)}
+								>
+									<span className='relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-700 rounded-md group-hover:bg-opacity-0'>Keep Voting</span>
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>

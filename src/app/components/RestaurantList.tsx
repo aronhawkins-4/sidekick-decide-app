@@ -84,7 +84,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, use
 		// 		</button>
 		// 	</div>
 		// </div>
-		<ul className='flex items-center justify-center gap-4'>
+		<ul className='flex items-center justify-center gap-4 flex-wrap'>
 			{restaurantList.map((restaurant) => (
 				<li
 					key={restaurant.id}
