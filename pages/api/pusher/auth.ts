@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { pusherServer } from '@/app/libs/pusher';
-import { auth } from '@clerk/nextjs';
+import { getAuth } from '@clerk/nextjs/dist/server-helpers.server';
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-	const { userId } = auth();
+	const { userId } = getAuth(request);
 	if (!userId) {
 		return response.status(401);
 	}

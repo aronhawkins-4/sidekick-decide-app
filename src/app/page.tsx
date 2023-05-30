@@ -3,17 +3,19 @@ import { RestaurantForm } from './components/RestaurantForm';
 import { RestaurantList } from './components/RestaurantList';
 import getRestaurants from './actions/getRestaurants';
 import getVotes from './actions/getVotes';
+import { UserCount } from './components/UserCount';
+import { AgreeModal } from './components/AgreeModal';
 
 export default async function Home() {
 	const user = await currentUser();
 	const restaurants = await getRestaurants();
-	const votes = await getVotes();
 
 	if (!user) {
 		return <div>Please Login</div>;
 	}
 	return (
 		<main className='flex min-h-screen flex-col p-24'>
+			<AgreeModal restaurantName='' />
 			{restaurants && (
 				<div>
 					<RestaurantList
@@ -29,6 +31,7 @@ export default async function Home() {
 					userName={`${user.firstName} ${user.lastName}`}
 				/>
 			</div>
+			<UserCount />
 		</main>
 	);
 }
