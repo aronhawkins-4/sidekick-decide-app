@@ -4,6 +4,8 @@ import { RestaurantCard } from './RestaurantCard';
 import { Restaurant, Vote } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { pusherClient } from '../libs/pusher';
+import useAgreedStore from '../hooks/useAgreedStore';
+import { AgreeModal } from './AgreeModal';
 
 interface RestaurantListProps {
 	restaurants: (Restaurant & {
@@ -13,8 +15,8 @@ interface RestaurantListProps {
 }
 export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, userId }) => {
 	const [restaurantList, setRestaurantList] = useState(restaurants);
-	const [activeRestaurant, setActiveRestaurant] = useState(restaurants[0]);
-	const [activeIndex, setActiveIndex] = useState(0);
+	// const [activeRestaurant, setActiveRestaurant] = useState(restaurants[0]);
+	// const [activeIndex, setActiveIndex] = useState(0);
 
 	useEffect(() => {
 		pusherClient.subscribe('restaurants-list');

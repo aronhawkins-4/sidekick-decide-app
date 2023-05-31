@@ -4,6 +4,7 @@ import { RestaurantList } from './components/RestaurantList';
 import getRestaurants from './actions/getRestaurants';
 import getVotes from './actions/getVotes';
 import { UserCount } from './components/UserCount';
+import { AgreeModal } from './components/AgreeModal';
 
 export default async function Home() {
 	const user = await currentUser();

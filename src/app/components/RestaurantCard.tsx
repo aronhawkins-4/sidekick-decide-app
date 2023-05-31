@@ -8,10 +8,10 @@ import { VoteForm } from './VoteForm';
 import { Vote } from '@prisma/client';
 import { BiTrash } from 'react-icons/bi';
 import { pusherClient } from '@/app/libs/pusher';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { ChangeVoteButton } from './ChangeVoteButton';
 import useUserCount from '../hooks/useUserCount';
-import { AgreeModal } from './AgreeModal';
+import useAgreedStore from '../hooks/useAgreedStore';
 
 interface RestaurantCardProps {
 	name: string;
@@ -25,21 +25,24 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 	const router = useRouter();
 
 	const [deletingId, setDeletingId] = useState('');
-	const [votes, setVotes] = useState(initialVotes);
+	const [votes, setVotes] = useState(initialVotes || null);
 	const [yesVotes, setYesVotes] = useState((initialVotes || []).filter((vote) => vote.vote === true).length);
-	const [noVotes, setNoVotes] = useState((initialVotes || []).filter((vote) => vote.vote === false).length);
 	const [hasUserVoted, setHasUserVoted] = useState((initialVotes || []).filter((vote) => vote?.userId === userId).length > 0);
 	const [voteId, setVoteId] = useState('');
 	const [isDisabled, setIsDisabled] = useState(false);
-	// const [agreedRestaurantName, setAgreedRestaurantName] = useState('');
-	// const [isAgreedModalOpen, setIsAgreedModalOpen] = useState(false);
+	const { activeMembers } = useUserCount();
+	const agreedStore = useAgreedStore();
 
-	// const { activeMembers } = useUserCount();
+	const checkVotes = useCallback(() => {
+		if (yesVotes === activeMembers && agreedStore.agreedName === '' && !agreedStore.agreedList.includes(name)) {
+			agreedStore.setAgreedName(name);
+			agreedStore.pushAgreedList(name);
+		}
+		console.log(yesVotes, activeMembers);
+	}, [activeMembers, yesVotes, agreedStore, name]);
 
-	useEffect(() => {
-		pusherClient.subscribe(restaurantId);
-
-		const voteRemoveHandler = (vote: Vote) => {
+	const voteRemoveHandler = useCallback(
+		(vote: Vote) => {
 			setVotes((current) => {
 				if (current) {
 					if (vote.restaurantId === restaurantId) {
@@ -56,60 +59,57 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 					}
 					return current;
 				});
-			} else {
-				setNoVotes((current) => {
-					if (vote.restaurantId === restaurantId) {
-						return current - 1;
-					}
-					return current;
-				});
 			}
-
+			// agreedStore.removeAgreedList(name);
 			return vote;
-		};
+		},
+		[restaurantId]
+	);
 
-		const voteAddHandler = (vote: Vote) => {
-			setVotes((current) => {
-				if (current) {
-					if (vote.restaurantId === restaurantId) {
+	const voteAddHandler = useCallback(
+		(vote: Vote) => {
+			if (vote.restaurantId === restaurantId) {
+				setVotes((current) => {
+					if (current) {
 						return [...current, vote];
 					}
-					return current;
+					return [vote];
+				});
+				if (vote.vote === true) {
+					setYesVotes((current) => {
+						if (current) {
+							return current + 1;
+						}
+						return 1;
+					});
 				}
-				return [];
-			});
-			if (vote.vote === true) {
-				setYesVotes((current) => {
-					if (vote.restaurantId === restaurantId) {
-						return current + 1;
-					}
-					return current;
-				});
-			} else {
-				setNoVotes((current) => {
-					if (vote.restaurantId === restaurantId) {
-						return current + 1;
-					}
-					return current;
-				});
+				// checkVotes();
 			}
-
-			// if (yesVotes === activeMembers) {
-			// 	setAgreedRestaurantName(name);
-			// 	setIsAgreedModalOpen(true);
-			// }
-			return vote;
-		};
-
+		},
+		[restaurantId]
+	);
+	useEffect(() => {
+		pusherClient.subscribe(restaurantId);
 		pusherClient.bind('vote:new', voteAddHandler);
 		pusherClient.bind('vote:remove', voteRemoveHandler);
+
+		if (activeMembers > 0 && yesVotes === activeMembers && agreedStore.agreedName === '' && !agreedStore.agreedList.includes(name)) {
+			agreedStore.setAgreedName(name);
+			agreedStore.pushAgreedList(name);
+			console.log(yesVotes, activeMembers, name);
+		}
+		if (yesVotes < activeMembers) {
+			agreedStore.resetAgreedName;
+			agreedStore.removeAgreedList(name);
+		}
+		console.log(yesVotes, activeMembers, name);
 
 		return () => {
 			pusherClient.unsubscribe(restaurantId);
 			pusherClient.unbind('vote:new', voteAddHandler);
 			pusherClient.unbind('vote:remove', voteRemoveHandler);
 		};
-	}, [restaurantId, hasUserVoted, userId, votes, noVotes, yesVotes]);
+	}, [restaurantId, voteAddHandler, voteRemoveHandler, yesVotes, activeMembers, name]);
 
 	const onDelete = useCallback(
 		(resId: string) => {
@@ -133,59 +133,49 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 	}, []);
 
 	return (
-		<>
-			{/* {isAgreedModalOpen && (
-				<AgreeModal
-					restaurantName={agreedRestaurantName}
-					isOpen={isAgreedModalOpen}
-					setIsOpen={setIsAgreedModalOpen}
-				/>
-			)} */}
-
-			<div
-				className={`w-full lg:min-w-[20rem] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${deletingId === restaurantId && 'opacity-80'} ${
-					isDisabled && 'opacity-80 pointer-events-none'
-				}`}
-			>
-				<div className='flex flex-col items-center p-10 relative gap-4'>
-					<h5 className='text-xl font-medium text-gray-900 dark:text-white'>{name}</h5>
-					{!hasUserVoted && (
-						<VoteForm
-							userId={userId}
-							restaurantId={restaurantId}
-							onVote={onVote}
-							onClick={() => {
-								setHasUserVoted(true);
-							}}
-							setIsDisabled={setIsDisabled}
-						/>
-					)}
-					{hasUserVoted && (
-						<ChangeVoteButton
-							onClick={() => {
-								setHasUserVoted(false);
-								setVoteId('');
-							}}
-							voteId={voteId}
-							setIsDisabled={setIsDisabled}
-						/>
-					)}
-					<div className='flex flex-col gap-1 items-center justify-center'>
-						<p className='text-sm font-light text-gray-400'>Created by: {createdByName}</p>
-						<div className='flex gap-2 sm:gap-4 flex-col sm:flex-row items-left justify-center w-full'>
-							<p className='text-sm font-light text-gray-400'>Votes for: {yesVotes}</p>
-							<p className='text-sm font-light text-gray-400'>Votes against: {noVotes}</p>
-						</div>
+		<div
+			className={`w-full lg:min-w-[20rem] bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${deletingId === restaurantId && 'opacity-80'} ${
+				isDisabled && 'opacity-80 pointer-events-none'
+			}`}
+		>
+			<div className='flex flex-col items-center p-10 relative gap-4'>
+				<h5 className='text-xl font-medium text-gray-900 dark:text-white'>{name}</h5>
+				{!hasUserVoted && (
+					<VoteForm
+						userId={userId}
+						restaurantId={restaurantId}
+						onVote={onVote}
+						onClick={() => {
+							setHasUserVoted(true);
+						}}
+						setIsDisabled={setIsDisabled}
+					/>
+				)}
+				{hasUserVoted && (
+					<ChangeVoteButton
+						onClick={() => {
+							setHasUserVoted(false);
+							setVoteId('');
+						}}
+						voteId={voteId}
+						setIsDisabled={setIsDisabled}
+					/>
+				)}
+				<div className='flex flex-col gap-1 items-center justify-center'>
+					<p className='text-sm font-light text-gray-400'>Created by: {createdByName}</p>
+					<div className='flex gap-2 sm:gap-4 flex-col sm:flex-row items-left justify-center w-full'>
+						<p className='text-sm font-light text-gray-400'>Votes for: {yesVotes}</p>
+						<p className='text-sm font-light text-gray-400'>Votes against: {votes?.length - yesVotes || 0}</p>
 					</div>
-
-					<button
-						onClick={() => onDelete(restaurantId)}
-						className='p-2 rounded-full bg-red-500 hover:bg-red-800 transition absolute bottom-4 right-4'
-					>
-						<BiTrash size={16} />
-					</button>
 				</div>
+
+				<button
+					onClick={() => onDelete(restaurantId)}
+					className='p-2 rounded-full bg-red-500 hover:bg-red-800 transition absolute bottom-4 right-4'
+				>
+					<BiTrash size={16} />
+				</button>
 			</div>
-		</>
+		</div>
 	);
 };
