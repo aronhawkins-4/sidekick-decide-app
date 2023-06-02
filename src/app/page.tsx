@@ -21,19 +21,6 @@ export default async function Home({ searchParams }: { searchParams: IParams }) 
 	}
 	return (
 		<main className='flex min-h-screen flex-col p-24'>
-			{/* <ul className='grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 items-center justify-center gap-4 flex-wrap'>
-				{gRes.map((res) => (
-					<li
-						className='text-lg font-normal'
-						key={res.place_id}
-					>
-						<RestaurantCard
-							name={res.name}
-							userId={user.id}
-						/>
-					</li>
-				))}
-			</ul> */}
 			<div className='w-full h-full flex items-center justify-center flex-grow mt-6'>
 				{/* <RestaurantForm
 					userId={user.id}

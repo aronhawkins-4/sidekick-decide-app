@@ -4,6 +4,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { Toaster } from 'react-hot-toast';
 import { Header } from './components/Header';
 import { AgreeModal } from './components/AgreeModal';
+import axios from 'axios';
 
 const inter = Inter({ subsets: ['latin'] });
 

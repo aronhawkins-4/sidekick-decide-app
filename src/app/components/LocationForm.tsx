@@ -8,7 +8,10 @@ import { toast } from 'react-hot-toast';
 import ReactGoogleAutocomplete, { usePlacesWidget } from 'react-google-autocomplete';
 import { LegacyRef, useState } from 'react';
 
-export const LocationForm = () => {
+interface LocationFormProps {
+	setQueryString: (queryString: string) => void;
+}
+export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString }) => {
 	const router = useRouter();
 	const [inputValue, setInputValue] = useState('');
 
@@ -35,7 +38,8 @@ export const LocationForm = () => {
 	});
 
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
-		console.log(data);
+		setQueryString(`${data.city}+${data.state}`);
+
 		setInputValue('');
 		setValue('state', '', { shouldValidate: true });
 		setValue('city', '', { shouldValidate: true });
@@ -46,7 +50,7 @@ export const LocationForm = () => {
 		}
 		console.log(data.placeId);
 
-		router.push(`?query=${data.state}+${data.city}+restaurants`);
+		// router.push(`?query=${data.state}+${data.city}+restaurants`);
 		router.refresh();
 	};
 
@@ -57,7 +61,7 @@ export const LocationForm = () => {
 
 				<form
 					onSubmit={handleSubmit(onSubmit)}
-					className='flex flex-col'
+					className='flex flex-col gap-2 justify-center items-left'
 				>
 					<ReactGoogleAutocomplete
 						apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
@@ -68,15 +72,12 @@ export const LocationForm = () => {
 						}}
 						className='bg-gray-700 p-2 text-slate-200 text-lg rounded-lg'
 					/>
-					{/* <input
-						type='text'
-						ref={ref as LegacyRef<HTMLInputElement | undefined>}
-						placeholder='Texas'
-						className='bg-gray-700 p-2 text-slate-200 text-lg rounded-lg'
-						onChange={(event) => setInputValue(event.target.value)}
-						value={inputValue}
-					/> */}
-					<button type='submit'>Submit</button>
+					<button
+						type='submit'
+						className='relative inline-flex items-center justify-center p-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800 w-32'
+					>
+						Submit
+					</button>
 				</form>
 			</div>
 		</div>

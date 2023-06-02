@@ -2,7 +2,7 @@
 
 import { RestaurantCard } from './RestaurantCard';
 import { Restaurant, Vote } from '@prisma/client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { pusherClient } from '../libs/pusher';
 import { GoogleRestaurant } from '../types/GoogleRestaurant';
 import useMapsQueryStore from '../hooks/useMapsQueryStore';
@@ -16,22 +16,30 @@ interface RestaurantListProps {
 	userId?: string;
 }
 export const RestaurantList: React.FC<RestaurantListProps> = ({ userId }) => {
-	const searchParams = useSearchParams();
-	const query = searchParams?.get('query');
+	const [queryString, setQueryString] = useState('');
 
 	const [isLoading, setIsLoading] = useState(false);
 	const [restaurants, setRestaurants] = useState<GoogleRestaurant[]>([]);
+
 	useEffect(() => {
-		axios
-			.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}+restaurants&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`)
-			.then((res) => {
-				setRestaurants(res?.data?.results);
-			})
-			.catch((error) => {
-				throw new Error(error);
-			})
-			.finally(() => setIsLoading(false));
-		setIsLoading(true);
+		async function fetchRestaurants() {
+			await axios
+				.post('/api/googleMaps/', {
+					data: {
+						query: queryString,
+						userId: userId,
+					},
+				})
+				.then((res) => {
+					setRestaurants(res.data);
+				})
+				.catch((error) => {
+					throw new Error(error);
+				})
+				.finally(() => setIsLoading(false));
+		}
+		fetchRestaurants();
+		console.log(restaurants);
 		// console.log(isLoading, gRes);
 		// if (queryString !== '') {
 		// 	axios.defaults.withCredentials = false;
@@ -58,7 +66,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ userId }) => {
 		// 	pusherClient.unbind('restaurant:new', listAddHandler);
 		// 	pusherClient.unbind('restaurant:remove', listRemoveHandler);
 		// };
-	}, [query]);
+	}, [queryString, userId]);
 
 	if (!userId) {
 		return <div>Invalid UserID</div>;
@@ -122,6 +130,7 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ userId }) => {
 		// 	))}
 		// </ul>
 		<div className='flex flex-col gap-4'>
+			<h1 className='text-2xl text-center font-medium'>Restaurants in {queryString.replace('+', ', ')}</h1>
 			<ul className='flex items-center justify-center gap-4 flex-wrap'>
 				{restaurants.map((location) => (
 					<li
@@ -135,7 +144,9 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ userId }) => {
 					</li>
 				))}
 			</ul>
-			<LocationForm />
+			<div className='col-span-4 flex justify-center'>
+				<LocationForm setQueryString={setQueryString} />
+			</div>
 		</div>
 
 		// <div>List</div>
