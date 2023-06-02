@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
 
-import { usePlacesWidget } from 'react-google-autocomplete';
-import { useState } from 'react';
+import ReactGoogleAutocomplete, { usePlacesWidget } from 'react-google-autocomplete';
+import { LegacyRef, useState } from 'react';
 
 export const LocationForm = () => {
 	const router = useRouter();
@@ -59,14 +59,23 @@ export const LocationForm = () => {
 					onSubmit={handleSubmit(onSubmit)}
 					className='flex flex-col'
 				>
-					<input
+					<ReactGoogleAutocomplete
+						apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
+						onPlaceSelected={(place) => {
+							setValue('state', place.address_components[2].short_name);
+							setValue('city', place.address_components[0].short_name);
+							setValue('placeId', place.place_id);
+						}}
+						className='bg-gray-700 p-2 text-slate-200 text-lg rounded-lg'
+					/>
+					{/* <input
 						type='text'
-						ref={ref}
+						ref={ref as LegacyRef<HTMLInputElement | undefined>}
 						placeholder='Texas'
 						className='bg-gray-700 p-2 text-slate-200 text-lg rounded-lg'
 						onChange={(event) => setInputValue(event.target.value)}
 						value={inputValue}
-					/>
+					/> */}
 					<button type='submit'>Submit</button>
 				</form>
 			</div>
