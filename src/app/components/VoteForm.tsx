@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 interface VoteFormProps {
 	userId: string;
-	restaurantId: string;
+	restaurantId?: string;
 	onVote: (userVoteId: string) => void;
 	onClick: () => void;
 	setIsDisabled: (disabled: boolean) => void;

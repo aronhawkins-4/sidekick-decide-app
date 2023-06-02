@@ -15,9 +15,9 @@ import useAgreedStore from '../hooks/useAgreedStore';
 
 interface RestaurantCardProps {
 	name: string;
-	restaurantId: string;
-	createdByName: string;
-	initialVotes: Vote[];
+	restaurantId?: string;
+	createdByName?: string;
+	initialVotes?: Vote[];
 	userId: string;
 }
 
@@ -31,15 +31,14 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 	const [voteId, setVoteId] = useState('');
 	const [isDisabled, setIsDisabled] = useState(false);
 	const { activeMembers } = useUserCount();
-	const agreedStore = useAgreedStore();
+	// const agreedStore = useAgreedStore();
 
-	const checkVotes = useCallback(() => {
-		if (yesVotes === activeMembers && agreedStore.agreedName === '' && !agreedStore.agreedList.includes(name)) {
-			agreedStore.setAgreedName(name);
-			agreedStore.pushAgreedList(name);
-		}
-		console.log(yesVotes, activeMembers);
-	}, [activeMembers, yesVotes, agreedStore, name]);
+	// const checkVotes = useCallback(() => {
+	// 	if (yesVotes === activeMembers && agreedStore.agreedName === '' && !agreedStore.agreedList.includes(name)) {
+	// 		agreedStore.setAgreedName(name);
+	// 		agreedStore.pushAgreedList(name);
+	// 	}
+	// }, [activeMembers, yesVotes, agreedStore, name]);
 
 	const voteRemoveHandler = useCallback(
 		(vote: Vote) => {
@@ -89,23 +88,21 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 		[restaurantId]
 	);
 	useEffect(() => {
-		pusherClient.subscribe(restaurantId);
+		// pusherClient.subscribe(restaurantId);
 		pusherClient.bind('vote:new', voteAddHandler);
 		pusherClient.bind('vote:remove', voteRemoveHandler);
 
-		if (activeMembers > 0 && yesVotes === activeMembers && agreedStore.agreedName === '' && !agreedStore.agreedList.includes(name)) {
-			agreedStore.setAgreedName(name);
-			agreedStore.pushAgreedList(name);
-			console.log(yesVotes, activeMembers, name);
-		}
-		if (yesVotes < activeMembers) {
-			agreedStore.resetAgreedName;
-			agreedStore.removeAgreedList(name);
-		}
-		console.log(yesVotes, activeMembers, name);
+		// if (activeMembers > 0 && yesVotes === activeMembers && agreedStore.agreedName === '' && !agreedStore.agreedList.includes(name)) {
+		// 	agreedStore.setAgreedName(name);
+		// 	agreedStore.pushAgreedList(name);
+		// }
+		// if (yesVotes < activeMembers) {
+		// 	agreedStore.resetAgreedName;
+		// 	agreedStore.removeAgreedList(name);
+		// }
 
 		return () => {
-			pusherClient.unsubscribe(restaurantId);
+			// pusherClient.unsubscribe(restaurantId);
 			pusherClient.unbind('vote:new', voteAddHandler);
 			pusherClient.unbind('vote:remove', voteRemoveHandler);
 		};
@@ -140,10 +137,10 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 		>
 			<div className='flex flex-col items-center p-10 relative gap-4'>
 				<h5 className='text-xl font-medium text-gray-900 dark:text-white'>{name}</h5>
-				{!hasUserVoted && (
+				{/* {!hasUserVoted && (
 					<VoteForm
 						userId={userId}
-						restaurantId={restaurantId}
+						// restaurantId={restaurantId}
 						onVote={onVote}
 						onClick={() => {
 							setHasUserVoted(true);
@@ -160,21 +157,21 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, restaurant
 						voteId={voteId}
 						setIsDisabled={setIsDisabled}
 					/>
-				)}
+				)} */}
 				<div className='flex flex-col gap-1 items-center justify-center'>
-					<p className='text-sm font-light text-gray-400'>Created by: {createdByName}</p>
+					{/* <p className='text-sm font-light text-gray-400'>Created by: {createdByName}</p> */}
 					<div className='flex gap-2 sm:gap-4 flex-col sm:flex-row items-left justify-center w-full'>
 						<p className='text-sm font-light text-gray-400'>Votes for: {yesVotes}</p>
-						<p className='text-sm font-light text-gray-400'>Votes against: {votes?.length - yesVotes || 0}</p>
+						<p className='text-sm font-light text-gray-400'>Votes against: {votes ? votes?.length - yesVotes : 0}</p>
 					</div>
 				</div>
 
-				<button
+				{/* <button
 					onClick={() => onDelete(restaurantId)}
 					className='p-2 rounded-full bg-red-500 hover:bg-red-800 transition absolute bottom-4 right-4'
 				>
 					<BiTrash size={16} />
-				</button>
+				</button> */}
 			</div>
 		</div>
 	);

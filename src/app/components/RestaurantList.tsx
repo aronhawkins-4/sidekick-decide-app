@@ -4,42 +4,61 @@ import { RestaurantCard } from './RestaurantCard';
 import { Restaurant, Vote } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { pusherClient } from '../libs/pusher';
-import useAgreedStore from '../hooks/useAgreedStore';
-import { AgreeModal } from './AgreeModal';
+import { GoogleRestaurant } from '../types/GoogleRestaurant';
+import useMapsQueryStore from '../hooks/useMapsQueryStore';
+import axios from 'axios';
+import useGoogleRestaurants, { IUseGoogleRestaurants } from '../hooks/useGoogleRestaurants';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { LocationForm } from './LocationForm';
 
 interface RestaurantListProps {
-	restaurants: (Restaurant & {
-		votes: Vote[];
-	})[];
+	// restaurants: GoogleRestaurant[];
 	userId?: string;
 }
-export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, userId }) => {
-	const [restaurantList, setRestaurantList] = useState(restaurants);
-	// const [activeRestaurant, setActiveRestaurant] = useState(restaurants[0]);
-	// const [activeIndex, setActiveIndex] = useState(0);
+export const RestaurantList: React.FC<RestaurantListProps> = ({ userId }) => {
+	const searchParams = useSearchParams();
+	const query = searchParams?.get('query');
 
+	const [isLoading, setIsLoading] = useState(false);
+	const [restaurants, setRestaurants] = useState<GoogleRestaurant[]>([]);
 	useEffect(() => {
-		pusherClient.subscribe('restaurants-list');
-
-		const listAddHandler = (restaurant: Restaurant & { votes: Vote[] }) => {
-			setRestaurantList((current) => [...current, restaurant]);
-			return restaurant;
-		};
-
-		const listRemoveHandler = (restaurant: Restaurant & { votes: Vote[] }) => {
-			setRestaurantList((current) => current.filter((item) => item.id !== restaurant.id));
-			return restaurant;
-		};
-
-		pusherClient.bind('restaurant:new', listAddHandler);
-		pusherClient.bind('restaurant:remove', listRemoveHandler);
-
-		return () => {
-			pusherClient.unsubscribe('restaurants-list');
-			pusherClient.unbind('restaurant:new', listAddHandler);
-			pusherClient.unbind('restaurant:remove', listRemoveHandler);
-		};
-	}, [restaurantList]);
+		axios
+			.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}+restaurants&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`)
+			.then((res) => {
+				setRestaurants(res?.data?.results);
+			})
+			.catch((error) => {
+				throw new Error(error);
+			})
+			.finally(() => setIsLoading(false));
+		setIsLoading(true);
+		// console.log(isLoading, gRes);
+		// if (queryString !== '') {
+		// 	axios.defaults.withCredentials = false;
+		// 	axios
+		// 		.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${queryString}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`)
+		// 		.then((res) => setLocations(res as unknown as GoogleRestaurant[]))
+		// 		.catch((error) => {
+		// 			throw new Error(error);
+		// 		});
+		// }
+		// pusherClient.subscribe('restaurants-list');
+		// const listAddHandler = (restaurant: Restaurant & { votes: Vote[] }) => {
+		// 	// setRestaurantList((current) => [...current, restaurant]);
+		// 	return restaurant;
+		// };
+		// const listRemoveHandler = (restaurant: Restaurant & { votes: Vote[] }) => {
+		// 	// setRestaurantList((current) => current.filter((item) => item.id !== restaurant.id));
+		// 	return restaurant;
+		// };
+		// pusherClient.bind('restaurant:new', listAddHandler);
+		// pusherClient.bind('restaurant:remove', listRemoveHandler);
+		// return () => {
+		// 	pusherClient.unsubscribe('restaurants-list');
+		// 	pusherClient.unbind('restaurant:new', listAddHandler);
+		// 	pusherClient.unbind('restaurant:remove', listRemoveHandler);
+		// };
+	}, [query]);
 
 	if (!userId) {
 		return <div>Invalid UserID</div>;
@@ -86,21 +105,39 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, use
 		// 		</button>
 		// 	</div>
 		// </div>
-		<ul className='flex items-center justify-center gap-4 flex-wrap'>
-			{restaurantList.map((restaurant) => (
-				<li
-					key={restaurant.id}
-					className='text-lg font-normal'
-				>
-					<RestaurantCard
-						restaurantId={restaurant.id}
-						name={restaurant.name}
-						createdByName={restaurant.createdByName}
-						initialVotes={restaurant.votes}
-						userId={userId}
-					/>
-				</li>
-			))}
-		</ul>
+		// <ul className='flex items-center justify-center gap-4 flex-wrap'>
+		// 	{restaurantList.map((restaurant) => (
+		// 		<li
+		// 			key={restaurant.id}
+		// 			className='text-lg font-normal'
+		// 		>
+		// 			<RestaurantCard
+		// 				restaurantId={restaurant.id}
+		// 				name={restaurant.name}
+		// 				createdByName={restaurant.createdByName}
+		// 				initialVotes={restaurant.votes}
+		// 				userId={userId}
+		// 			/>
+		// 		</li>
+		// 	))}
+		// </ul>
+		<div className='flex flex-col gap-4'>
+			<ul className='flex items-center justify-center gap-4 flex-wrap'>
+				{restaurants.map((location) => (
+					<li
+						key={location.place_id}
+						className='text-lg font-normal'
+					>
+						<RestaurantCard
+							name={location.name}
+							userId={userId}
+						/>
+					</li>
+				))}
+			</ul>
+			<LocationForm />
+		</div>
+
+		// <div>List</div>
 	);
 };
