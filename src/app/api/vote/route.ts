@@ -10,23 +10,20 @@ export async function POST(request: Request) {
 		if (!userId) {
 			return new NextResponse('Unauthorized', { status: 401 });
 		}
-
+		console.log(body);
 		const newVote = await prisma.vote.create({
 			data: {
 				userId,
 				vote,
-				restaurant: {
-					connect: {
-						id: restaurantId,
-					},
-				},
+				restaurantId,
 			},
 		});
 
-		await pusherServer.trigger(restaurantId, 'vote:new', newVote);
+		// await pusherServer.trigger(restaurantId, 'vote:new', newVote);
 
 		return NextResponse.json(newVote);
 	} catch (error: any) {
+		console.log(error);
 		return new NextResponse('Internal error', { status: 500 });
 	}
 }

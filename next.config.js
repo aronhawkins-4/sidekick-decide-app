@@ -1,4 +1,8 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+	images: {
+		domains: ['maps.gstatic.com', 'maps.googleapis.com'],
+	},
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

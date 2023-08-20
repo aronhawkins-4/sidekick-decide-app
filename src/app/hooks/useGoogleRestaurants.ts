@@ -3,26 +3,23 @@ import { GoogleRestaurant } from '../types/GoogleRestaurant';
 import { useState } from 'react';
 
 export interface IUseGoogleRestaurants {
-	query?: string | null;
+	queryString: string;
+	userId: string;
 }
-const useGoogleRestaurants = ({ query }: { query: IUseGoogleRestaurants }) => {
-	let gRes: GoogleRestaurant[] = [];
-	const [isLoading, setIsLoading] = useState(false);
-
-	if (query.query !== '') {
-		axios
-			.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query.query}+restaurants&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}`)
-			.then((res) => {
-				gRes = res?.data?.results;
-			})
-			.catch((error) => {
-				throw new Error(error);
-			});
-		// .finally(() => setIsLoading(false));
-	}
-	// setIsLoading(true);
-
-	return { isLoading, gRes };
+const useGoogleRestaurants = async ({ queryString, userId }: { queryString: IUseGoogleRestaurants; userId: IUseGoogleRestaurants }) => {
+	return await axios
+		.post('/api/googleMaps/', {
+			data: {
+				query: queryString,
+				userId: userId,
+			},
+		})
+		.then((res) => {
+			return res.data.results;
+		})
+		.catch((error) => {
+			throw new Error(error);
+		});
 };
 
 export default useGoogleRestaurants;

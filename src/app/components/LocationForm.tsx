@@ -1,33 +1,20 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-
-import ReactGoogleAutocomplete, { usePlacesWidget } from 'react-google-autocomplete';
-import { LegacyRef, useState } from 'react';
+import ReactGoogleAutocomplete from 'react-google-autocomplete';
+import { useRef } from 'react';
 
 interface LocationFormProps {
 	setQueryString: (queryString: string) => void;
+	isLoading: boolean;
+	// nextPageToken?: string;
 }
-export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString }) => {
-	const router = useRouter();
-	const [inputValue, setInputValue] = useState('');
-
-	const { ref } = usePlacesWidget({
-		apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY,
-		onPlaceSelected: (place) => {
-			setValue('state', place.address_components[2].short_name);
-			setValue('city', place.address_components[0].short_name);
-			setValue('placeId', place.place_id);
-		},
-	});
+export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString, isLoading }) => {
+	const inputRef = useRef<HTMLInputElement>(null);
 	const {
-		register,
 		handleSubmit,
 		setValue,
-		watch,
 		formState: { errors },
 	} = useForm<FieldValues>({
 		defaultValues: {
@@ -38,9 +25,6 @@ export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString }) =>
 	});
 
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
-		setQueryString(`${data.city}+${data.state}`);
-
-		setInputValue('');
 		setValue('state', '', { shouldValidate: true });
 		setValue('city', '', { shouldValidate: true });
 		setValue('placeId', '', { shouldValidate: true });
@@ -48,20 +32,20 @@ export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString }) =>
 			toast.error('Place cannot be blank');
 			return;
 		}
-		console.log(data.placeId);
-
-		// router.push(`?query=${data.state}+${data.city}+restaurants`);
-		router.refresh();
+		setQueryString(`${data.city}+${data.state}`);
+		if (inputRef && inputRef.current) {
+			inputRef.current.value = '';
+		}
 	};
 
 	return (
-		<div className=' bg-white border max-w-xl w-full border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700'>
+		<div className={`bg-white border max-w-xl w-full border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${isLoading && 'opacity-50'}`}>
 			<div className='p-5 w-full'>
 				<h2 className='text-xl font-semibold mb-2'>Choose a location</h2>
 
 				<form
 					onSubmit={handleSubmit(onSubmit)}
-					className='flex flex-col gap-2 justify-center items-left'
+					className='flex flex-col gap-2 items-center justify-stretch w-full'
 				>
 					<ReactGoogleAutocomplete
 						apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}
@@ -70,13 +54,14 @@ export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString }) =>
 							setValue('city', place.address_components[0].short_name);
 							setValue('placeId', place.place_id);
 						}}
-						className='bg-gray-700 p-2 text-slate-200 text-lg rounded-lg'
+						ref={inputRef}
+						className='bg-gray-700 p-2 text-slate-200 text-lg rounded-lg w-full'
 					/>
 					<button
 						type='submit'
-						className='relative inline-flex items-center justify-center p-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800 w-32'
+						className='relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800 w-full'
 					>
-						Submit
+						<span className='relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0 w-full'>Submit</span>
 					</button>
 				</form>
 			</div>

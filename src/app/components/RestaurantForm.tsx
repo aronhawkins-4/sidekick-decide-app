@@ -43,7 +43,7 @@ export const RestaurantForm: React.FC<RestaurantFormProps> = ({ userId, userName
 			.post('/api/restaurants', data)
 			.then(() => {
 				toast.success('Restaurant created!');
-				router.refresh();
+				// router.refresh();
 			})
 			.catch((error) => toast.error('Something went wrong'))
 			.finally(() => setIsLoading(false));
