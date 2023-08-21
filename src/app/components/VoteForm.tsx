@@ -14,10 +14,10 @@ interface VoteFormProps {
 	userId: string;
 	restaurantId?: string;
 	setIsDisabled: (disabled: boolean) => void;
+	setHasUserVoted: (hasVoted: boolean) => void;
+	setVoteId: (voteId: string) => void;
 }
-export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId, setIsDisabled }) => {
-	const [hasUserVoted, setHasUserVoted] = useState(false);
-
+export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId, setIsDisabled, setHasUserVoted, setVoteId }) => {
 	const {
 		handleSubmit,
 		setValue,
@@ -31,17 +31,19 @@ export const VoteForm: React.FC<VoteFormProps> = ({ userId, restaurantId, setIsD
 	});
 
 	const createVote = useMutation({
-		mutationFn: (fieldData: FieldValues) => {
-			return axios
-				.post('/api/vote/', fieldData)
-				.then((response) => {
-					toast.success(`You voted ${response.data.vote === true ? 'Yes' : 'No'}`);
-					setHasUserVoted(true);
-				})
-				.catch((error) => {
-					toast.error('Something went wrong');
-					console.log(error);
-				});
+		mutationFn: async (fieldData: FieldValues) => {
+			setIsDisabled(true);
+			try {
+				const response = await axios.post('/api/vote/', fieldData);
+				setVoteId(response.data.id);
+				toast.success(`You voted ${response.data.vote === true ? 'Yes' : 'No'}`);
+				setHasUserVoted(true);
+			} catch (error) {
+				toast.error('Something went wrong');
+				console.log(error);
+			} finally {
+				setIsDisabled(false);
+			}
 		},
 	});
 

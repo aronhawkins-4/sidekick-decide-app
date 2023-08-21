@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { VoteForm } from './VoteForm';
 import useUserCount from '../hooks/useUserCount';
 import Image from 'next/image';
+import { ChangeVoteButton } from './ChangeVoteButton';
 
 interface RestaurantCardProps {
 	name: string;
@@ -20,6 +21,7 @@ interface RestaurantCardProps {
 export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, address, rating, placeId, photo, userId }) => {
 	const [isDisabled, setIsDisabled] = useState(false);
 	const [hasUserVoted, setHasUserVoted] = useState(false);
+	const [voteId, setVoteId] = useState('');
 
 	return (
 		<div className={`w-full h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${isDisabled && 'opacity-80 pointer-events-none'}`}>
@@ -43,6 +45,18 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, address, r
 							userId={userId}
 							setIsDisabled={setIsDisabled}
 							restaurantId={placeId}
+							setHasUserVoted={setHasUserVoted}
+							setVoteId={setVoteId}
+						/>
+					)}
+					{hasUserVoted && (
+						<ChangeVoteButton
+							onClick={() => {
+								setHasUserVoted(false);
+								setVoteId('');
+							}}
+							voteId={voteId}
+							setIsDisabled={setIsDisabled}
 						/>
 					)}
 				</div>
