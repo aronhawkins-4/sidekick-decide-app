@@ -34,7 +34,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, address, r
 						className='object-cover'
 					/>
 				</div>
-				<div className='p-10 w-full'>
+				<div className='p-6 md:p-10 w-full'>
 					<h3 className='text-xl font-semibold text-gray-900 dark:text-white'>{name}</h3>
 					<h4 className='text-sm font-light text-gray-400'>{address}</h4>
 					<p className='text-sm font-light'>
