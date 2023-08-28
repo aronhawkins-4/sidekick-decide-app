@@ -24,7 +24,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, address, r
 	const [voteId, setVoteId] = useState('');
 
 	return (
-		<div className={`w-full h-full bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${isDisabled && 'opacity-80 pointer-events-none'}`}>
+		<div className={`w-full h-full overflow-hidden rounded-lg shadow border-gray-700 bg-gray-800 ${isDisabled && 'opacity-80 pointer-events-none'}`}>
 			<div className='flex flex-col items-start relative'>
 				<div className='relative w-full h-40'>
 					<Image
@@ -35,7 +35,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ name, address, r
 					/>
 				</div>
 				<div className='p-6 md:p-10 w-full'>
-					<h3 className='text-xl font-semibold text-gray-900 dark:text-white'>{name}</h3>
+					<h3 className='text-xl font-semibold text-white'>{name}</h3>
 					<h4 className='text-sm font-light text-gray-400'>{address}</h4>
 					<p className='text-sm font-light'>
 						rating: <span className='font-bold'>{rating} stars</span>
