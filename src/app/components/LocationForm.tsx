@@ -39,7 +39,7 @@ export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString, isLo
 	};
 
 	return (
-		<div className={`bg-white border max-w-xl w-full border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 ${isLoading && 'opacity-50'}`}>
+		<div className={`border max-w-xl w-full rounded-lg shadow bg-gray-800 border-gray-700 ${isLoading && 'opacity-50'}`}>
 			<div className='p-5 w-full'>
 				<h2 className='text-xl font-semibold mb-2'>Choose a location</h2>
 
@@ -59,9 +59,9 @@ export const LocationForm: React.FC<LocationFormProps> = ({ setQueryString, isLo
 					/>
 					<button
 						type='submit'
-						className='relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800 w-full'
+						className='relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none  focus:ring-cyan-800 w-full'
 					>
-						<span className='relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0 w-full'>Submit</span>
+						<span className='relative px-5 py-2.5 transition-all ease-in duration-75  bg-gray-900 rounded-md group-hover:bg-opacity-0 w-full'>Submit</span>
 					</button>
 				</form>
 			</div>
